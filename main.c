@@ -21,7 +21,7 @@ int main()
 
         if (child_b == 0)
         {
-            /* Child B code */
+            printf("balls");
         }
         else
         {
