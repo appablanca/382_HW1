@@ -21,7 +21,7 @@ int main()
 
         if (child_b == 0)
         {
-            printf("balls");
+            printf("balsls");
         }
         else
         {
