@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-int findAmountOfInt (char filename[]){
+int findAmountOfInt (char *filename){
     FILE *file;
     char ch;
     int count = 0;
@@ -43,10 +43,10 @@ int isPrime(int number) {
 
 int main()
 {  
-    char filename[] = "numbers.txt";
+    char *filename = "numbers.txt";
     int numberOfInt = findAmountOfInt(filename);
 
-
+    printf("%d",numberOfInt);
 
     
     return 0;
