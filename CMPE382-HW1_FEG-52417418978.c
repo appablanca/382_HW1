@@ -98,6 +98,7 @@ int main()
                 printf("%d ", number1);
 
             }
+            wait(NULL);
         }
         else if (pid2 == 0)
         {
@@ -122,6 +123,7 @@ int main()
             }
             printf("Primes: %d\n", primes);
             printf("Nonprimes: %d\n", nonprimes);
+            sleep(10);
         }
     }
     else if (pid1 == 0)
@@ -138,7 +140,11 @@ int main()
             count++;
 
         }
+        printf("Count: %d\n", count);
+        sleep(10);
     }
+
+    sleep(20);
 
     return 0;
 }
