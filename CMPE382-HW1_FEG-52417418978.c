@@ -136,7 +136,13 @@ int main()
         close(pfd1[1]);
         dup2(pfd1[0], 0);
         int count = 0;
-        
+        for(int i = 0; i < 10; i++){
+            scanf("%d", &buffer);
+            if (buffer % 2 == 0)
+            {
+                count++;
+            }
+        }
 
     }
 
