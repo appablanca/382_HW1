@@ -55,7 +55,7 @@ int isPrime(int number)
 int main()
 {
     FILE *fileread;
-    int ch1;
+    FILE *fileread1;
 
     pid_t pid1;
     pid_t pid2;
@@ -76,46 +76,67 @@ int main()
             char *filename = "numbers.txt";
             int numberOfInt = findAmountOfInt(filename);
             printf("%d\n", numberOfInt);
-            int buffer[numberOfInt];
+
+            close(pfd2[0]);
+            dup2(pfd2[1], 1);
+            fileread = fopen(filename, "r");
+            for (int i = 0; i < numberOfInt; i++)
+            {
+                int number;
+                fscanf(fileread, "%d", &number);
+                printf("%d ", number);
+            }
+                
+
+            fileread1 = fopen(filename, "r");
             close(pfd1[0]);
             dup2(pfd1[1], 1);
-
-            fileread = fopen(filename, "r");
-
-            if (fileread == NULL)
+            for (int i = 0; i < numberOfInt; i++)
             {
-                printf("Error opening file.\n");
-                return 1;
-            } else {
-                while ((ch1 = fgetc(fileread)) != EOF)
-                {
-                    if (isdigit(ch1))
-                    {
-                        ungetc(ch1, fileread);
-                        fscanf(fileread, "%d", &buffer);
-                        printf("%d ", buffer);
-                    }
-                }
+                int number1;
+                fscanf(fileread1, "%d", &number1);
+                printf("%d ", number1);
+
             }
-        
         }
         else if (pid2 == 0)
         {
+            int buffer;
+            int primes;
+            int nonprimes;
             printf("child2 2");
             printf("%ld \n", (long)getpid());
+            close(pfd2[1]);
+            dup2(pfd2[0], 0);
+            while (scanf("%d", &buffer) != EOF)
+            {
+                if (isPrime(buffer))
+                {
+                    primes++;
+                }
+                else
+                {
+                    nonprimes++;
+                }
+
+            }
+            printf("Primes: %d\n", primes);
+            printf("Nonprimes: %d\n", nonprimes);
         }
     }
     else if (pid1 == 0)
     {
-        int buffer;
 
+        int buffer;
         printf("child 1");
         printf("%ld\n", (long)getpid());
         close(pfd1[1]);
         dup2(pfd1[0], 0);
-        while (read(0, &buffer, 1) > 0)
+        int count = 0;
+        while (scanf("%d", &buffer) != EOF)
         {
-            printf("%d -", buffer);
+            count++;
+
         }
     }
 
