@@ -56,7 +56,7 @@ int main()
 {
     FILE *fileread;
     FILE *fileread1;
-
+    int status;
     pid_t pid1;
     pid_t pid2;
     int pfd1[2];
@@ -79,6 +79,8 @@ int main()
 
             close(pfd2[0]);
             dup2(pfd2[1], 1);
+            close(pfd1[0]);
+            dup2(pfd1[1], 1);
             fileread = fopen(filename, "r");
             for (int i = 0; i < numberOfInt; i++)
             {
@@ -89,8 +91,7 @@ int main()
                 
 
             fileread1 = fopen(filename, "r");
-            close(pfd1[0]);
-            dup2(pfd1[1], 1);
+            
             for (int i = 0; i < numberOfInt; i++)
             {
                 int number1;
@@ -98,7 +99,7 @@ int main()
                 printf("%d ", number1);
 
             }
-            wait(NULL);
+
         }
         else if (pid2 == 0)
         {
@@ -123,7 +124,7 @@ int main()
             }
             printf("Primes: %d\n", primes);
             printf("Nonprimes: %d\n", nonprimes);
-            sleep(10);
+
         }
     }
     else if (pid1 == 0)
@@ -135,16 +136,11 @@ int main()
         close(pfd1[1]);
         dup2(pfd1[0], 0);
         int count = 0;
-        while (scanf("%d", &buffer) != EOF)
-        {
-            count++;
+        
 
-        }
-        printf("Count: %d\n", count);
-        sleep(10);
     }
 
-    sleep(20);
+
 
     return 0;
 }
