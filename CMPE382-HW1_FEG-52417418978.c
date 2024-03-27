@@ -2,30 +2,25 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <sys/wait.h> // Include the header for wait system call
 #include <unistd.h>
 
-int findAmountOfInt(char *filename)
-{
+int findAmountOfInt(char *filename) {
     FILE *file;
     char ch;
     int count = 0;
 
     file = fopen(filename, "r");
 
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Error opening file.\n");
         return 1;
     }
 
-    while ((ch = fgetc(file)) != EOF)
-    {
-        if (isdigit(ch))
-        {
+    while ((ch = fgetc(file)) != EOF) {
+        if (isdigit(ch)) {
             count++;
-            while (isdigit(ch = fgetc(file)))
-            {
-            }
+            while (isdigit(ch = fgetc(file))) {}
         }
     }
 
@@ -34,17 +29,13 @@ int findAmountOfInt(char *filename)
     return (count);
 }
 
-int isPrime(int number)
-{
-    if (number <= 1)
-    {
+int isPrime(int number) {
+    if (number <= 1) {
         return 0;
     }
 
-    for (int i = 2; i * i <= number; i++)
-    {
-        if (number % i == 0)
-        {
+    for (int i = 2; i * i <= number; i++) {
+        if (number % i == 0) {
             return 0;
         }
     }
@@ -52,101 +43,75 @@ int isPrime(int number)
     return 1;
 }
 
-int main()
-{
-    FILE *fileread;
+int main() {
     FILE *fileread1;
-    int status;
-    pid_t pid1;
-    pid_t pid2;
-    int pfd1[2];
-    int pfd2[2];
-    pipe(pfd1);
-    pipe(pfd2);
 
-    pid1 = fork();
+    pid_t child1;
+    pid_t child2;
 
-    if (pid1 > 0)
-    {
-        pid2 = fork();
-        if (pid2 > 0)
-        {
-            printf("parent ");
-            printf("%ld ", (long)getpid());
-            char *filename = "numbers.txt";
-            int numberOfInt = findAmountOfInt(filename);
-            printf("%d\n", numberOfInt);
+    int pipe1[2];
+    int pipe2[2];
+    int pipe3[2];
+    int pipe4[2];
+    pipe(pipe1);
+    pipe(pipe2);
+    pipe(pipe3);
+    pipe(pipe4);
 
-            close(pfd2[0]);
-            dup2(pfd2[1], 1);
-            close(pfd1[0]);
-            dup2(pfd1[1], 1);
-            fileread = fopen(filename, "r");
-            for (int i = 0; i < numberOfInt; i++)
-            {
-                int number;
-                fscanf(fileread, "%d", &number);
-                printf("%d ", number);
-            }
-                
-
-            fileread1 = fopen(filename, "r");
-            
-            for (int i = 0; i < numberOfInt; i++)
-            {
-                int number1;
-                fscanf(fileread1, "%d", &number1);
-                printf("%d ", number1);
-
-            }
-
-        }
-        else if (pid2 == 0)
-        {
+    child1 = fork();
+    if (child1 == 0) {
+        // Child 1
+        int buffer;
+        int count = 0;
+        printf("Child 1\n");
+        
+    } else {
+        child2 = fork();
+        if (child2 == 0) {
+            // Child 2
             int buffer;
-            int primes;
-            int nonprimes;
-            printf("child2 2");
-            printf("%ld \n", (long)getpid());
-            close(pfd2[1]);
-            dup2(pfd2[0], 0);
-            while (scanf("%d", &buffer) != EOF)
-            {
-                if (isPrime(buffer))
-                {
+            int primes = 0;
+            int nonprimes = 0;
+            close(pipe2[1]);
+            dup2(pipe2[0], 0);
+            printf("Child 2\n");
+            while (scanf("%d", &buffer) != EOF) {
+                if (isPrime(buffer)) {
                     primes++;
-                }
-                else
-                {
+                } else {
                     nonprimes++;
                 }
-
             }
-            printf("Primes: %d\n", primes);
-            printf("Nonprimes: %d\n", nonprimes);
+            close(pipe4[0]);
+            dup2(pipe4[1], 1);
+            printf("%d\n", primes);
+            printf("%d", nonprimes);
+        } else {
+            // Parent
+            int buffer;
+            printf("Parent\n");
+            fileread1 = fopen("numbers.txt", "r");
+            int numberOfInt = findAmountOfInt("numbers.txt");
+            close(pipe1[0]);
+            close(pipe2[0]);
+            dup2(pipe1[1], 1);
+            dup2(pipe2[1], 1);
+            for (int i = 0; i < numberOfInt; i++) {
+                int number;
+                fscanf(fileread1, "%d", &number);
+                printf("%d ", number);
+            }
+            close(pipe3[1]);
+            dup2(pipe3[0], 0);
+            while (scanf("%d", &buffer) != EOF) {
+                printf("%d ", buffer);
+            }
 
+            // Wait for both child processes to finish
+            wait(NULL);
+            wait(NULL);
         }
     }
-    else if (pid1 == 0)
-    {
-
-        int buffer;
-        printf("child 1");
-        printf("%ld\n", (long)getpid());
-        close(pfd1[1]);
-        dup2(pfd1[0], 0);
-        int count = 0;
-        for(int i = 0; i < 10; i++){
-            scanf("%d", &buffer);
-            if (buffer % 2 == 0)
-            {
-                count++;
-            }
-        }
-
-    }
-
-
 
     return 0;
 }

@@ -4,6 +4,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+int nrDigits(int number)
+{
+    int count = 0;
+    while (number != 0)
+    {
+        number /= 10;
+        count++;
+    }
+    return count;
+}
+
 int findAmountOfInt(char *filename)
 {
     FILE *file;
@@ -54,8 +65,10 @@ int isPrime(int number)
 
 int main()
 {
+    printf("Input file: \n");
+    int status;
     FILE *fileread1;
-
+    FILE *fileread2;
     pid_t child1;
     pid_t child2;
 
@@ -69,19 +82,57 @@ int main()
     pipe(pipe4);
 
     child1 = fork();
+
     if (child1 == 0)
     {
         // Child 1
         int buffer;
-        int count = 0;
+        int count1 = 0;
+        int digits1 = 0;
+        int digits2 = 0;
+        int digits3 = 0;
+        int digits4 = 0;
+        int digits5 = 0;
+        int numberOfInt1 = findAmountOfInt("numbers.txt");
+
         printf("Child 1\n");
         close(pipe1[1]);
         dup2(pipe1[0], 0);
-        // while(scanf("%d", &buffer) != EOF)
-        // {
-        //     count++;
-        // }
-        // printf("Count: %d\n", count);
+        while (scanf("%d", &buffer) != EOF)
+        {
+            int number = nrDigits(buffer);
+            count1++;
+            if (number == 1)
+            {
+                digits1++;
+            }
+            else if (number == 2)
+            {
+                digits2++;
+            }
+            else if (number == 3)
+            {
+                digits3++;
+            }
+            else if (number == 4)
+            {
+                digits4++;
+            }
+            else if (number == 5)
+            {
+                digits5++;
+            }
+            if (count1 == numberOfInt1)
+            {
+                break;
+            }
+        }
+        
+        printf("1 digit: %d\n", digits1);
+        printf("2 digits: %d\n", digits2);
+        printf("3 digits: %d\n", digits3);
+        printf("4 digits: %d\n", digits4);
+        printf("5 digits: %d\n", digits5);
     }
     else
     {
@@ -90,8 +141,10 @@ int main()
         {
             // Child 2
             int buffer;
+            int count2 = 0;
             int primes = 0;
             int nonprimes = 0;
+            int numberOfInts2 = findAmountOfInt("numbers.txt");
             close(pipe2[1]);
             dup2(pipe2[0], 0);
             printf("Child 2\n");
@@ -105,33 +158,53 @@ int main()
                 {
                     nonprimes++;
                 }
+                if (count2 == numberOfInts2)
+                {
+                    break;
+                }
             }
 
-            printf("%d\n", primes);
-            printf("%d", nonprimes);
+            printf("Primes: %d\n", primes);
+            printf("Nonprimes: %d\n", nonprimes);
+
+            exit(0);
         }
         else
         {
             // Parent
+
             int buffer;
             printf("Parent\n");
-            fileread1 = fopen("numbers.txt", "r");
-            int numberOfInt = findAmountOfInt("numbers.txt");
+            char *filename = "numbers.txt";
+            fileread1 = fopen(filename, "r");
+            fileread2 = fopen(filename, "r");
+            int numberOfInt = findAmountOfInt(filename);
+
             close(pipe1[0]);
-            close(pipe2[0]);
             dup2(pipe1[1], 1);
-            dup2(pipe2[1], 1);
+
             for (int i = 0; i < numberOfInt; i++)
             {
                 int number;
-                fscanf(fileread1, "%d", &number);
-                printf("%d ", number);
+                fscanf(fileread1, "%d\n", &number);
+                printf("%d\n", number);
             }
 
+            close(pipe1[1]);
+
+            close(pipe2[0]);
+            dup2(pipe2[1], 1);
+
+            for (int i = 0; i < numberOfInt; i++)
+            {
+
+                int number;
+                fscanf(fileread2, "%d\n", &number);
+                printf("%d\n", number);
+            }
+            close(pipe2[1]);
         }
     }
 
-  
-
-return 0;
+    return 0;
 }
