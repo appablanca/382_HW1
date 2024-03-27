@@ -127,12 +127,14 @@ int main()
                 break;
             }
         }
-        
+        close(pipe1[0]);
+
         printf("1 digit: %d\n", digits1);
         printf("2 digits: %d\n", digits2);
         printf("3 digits: %d\n", digits3);
         printf("4 digits: %d\n", digits4);
         printf("5 digits: %d\n", digits5);
+
     }
     else
     {
@@ -174,6 +176,7 @@ int main()
             // Parent
 
             int buffer;
+            int countParent = 0;
             printf("Parent\n");
             char *filename = "numbers.txt";
             fileread1 = fopen(filename, "r");
@@ -203,8 +206,8 @@ int main()
                 printf("%d\n", number);
             }
             close(pipe2[1]);
+            
         }
     }
 
     return 0;
-}
