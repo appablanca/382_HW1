@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int nrDigits(int number)
+int nrDigits(int number) // Function to find the number of digits in a number
 {
     int count = 0;
     while (number != 0)
@@ -15,7 +15,7 @@ int nrDigits(int number)
     return count;
 }
 
-int findAmountOfInt(char *filename)
+int findAmountOfInt(char *filename) // Function to find the amount of integers in a file
 {
     FILE *file;
     char ch;
@@ -45,7 +45,7 @@ int findAmountOfInt(char *filename)
     return (count);
 }
 
-int isPrime(int number)
+int isPrime(int number) // Function to check if a number is prime
 {
     if (number <= 1)
     {
@@ -66,24 +66,24 @@ int isPrime(int number)
 int main(int argc, char *argv[])
 {
     printf("Input file: %s\n", argv[1]);
-    int status;
-    FILE *fileread1;
-    FILE *fileread2;
-    pid_t child1;
-    pid_t child2;
 
-    int pipe1[2];
+    FILE *fileread1; // File pointers to read from the file
+    FILE *fileread2; // File pointers to read from the file
+    pid_t child1;   // Child 1
+    pid_t child2;  // Child 2
+
+    int pipe1[2]; // Pipes to communicate between the processes
     int pipe2[2];
     int pipe3[2];
     int pipe4[2];
-    pipe(pipe1);
+    pipe(pipe1); // Creating the pipes
     pipe(pipe2);
     pipe(pipe3);
     pipe(pipe4);
 
-    child1 = fork();
+    child1 = fork(); // Creating the first child with frok
 
-    if (child1 == 0)
+    if (child1 == 0) // If the child is the first child
     {
         // Child 1
         int buffer;
@@ -95,9 +95,9 @@ int main(int argc, char *argv[])
         int digits5 = 0;
         int numberOfInt1 = findAmountOfInt(argv[1]);
 
-        close(pipe1[1]);
-        dup2(pipe1[0], 0);
-        while (scanf("%d", &buffer) != EOF)
+        close(pipe1[1]); // Closing the write end of the pipe
+        dup2(pipe1[0], 0); // Duplicating the read end of the pipe
+        while (scanf("%d", &buffer) != EOF) // Reading from the pipe and counting the digits
         {
             int number = nrDigits(buffer);
             count1++;
@@ -126,9 +126,9 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-        close(pipe1[0]);
-
-        printf("1 digits - %d\n", digits1);
+        close(pipe1[0]); // Closing the pipe
+    
+        printf("1 digits - %d\n", digits1); 
         printf("2 digits - %d\n", digits2);
         printf("3 digits - %d\n", digits3);
         printf("4 digits - %d\n", digits4);
@@ -137,18 +137,18 @@ int main(int argc, char *argv[])
     }
     else
     {
-        child2 = fork();
+        child2 = fork(); // Creating the second child with fork
         if (child2 == 0)
         {
             // Child 2
             int buffer;
-            int count2 = 0;
+            int count2 = 0; 
             int primes = 0;
             int nonprimes = 0;
             int numberOfInts2 = findAmountOfInt(argv[1]);
-            close(pipe2[1]);
-            dup2(pipe2[0], 0);
-            while (scanf("%d", &buffer) != EOF)
+            close(pipe2[1]); // Closing the write end of the pipe
+            dup2(pipe2[0], 0); // Duplicating the read end of the pipe
+            while (scanf("%d", &buffer) != EOF) 
             {
                 if (isPrime(buffer))
                 {
@@ -180,22 +180,22 @@ int main(int argc, char *argv[])
             fileread2 = fopen(filename, "r");
             int numberOfInt = findAmountOfInt(filename);
 
-            close(pipe1[0]);
-            dup2(pipe1[1], 1);
-
-            for (int i = 0; i < numberOfInt; i++)
+            close(pipe1[0]); // Closing the read end of the pipe
+            dup2(pipe1[1], 1); // Duplicating the write end of the pipe
+ 
+            for (int i = 0; i < numberOfInt; i++) // Reading from the file and writing to the pipe
             {
                 int number;
                 fscanf(fileread1, "%d\n", &number);
                 printf("%d\n", number);
             }
 
-            close(pipe1[1]);
+            close(pipe1[1]); // Closing the pipe
 
-            close(pipe2[0]);
-            dup2(pipe2[1], 1);
+            close(pipe2[0]); // Closing the read end of the pipe
+            dup2(pipe2[1], 1); // Duplicating the write end of the pipe
 
-            for (int i = 0; i < numberOfInt; i++)
+            for (int i = 0; i < numberOfInt; i++) // Reading from the file and writing to the pipe
             {
 
                 int number;
